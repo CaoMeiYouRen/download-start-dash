@@ -1,6 +1,9 @@
 <h1 align="center">download-start-dash </h1>
 <p>
   <img alt="Version" src="https://img.shields.io/github/package-json/v/CaoMeiYouRen/download-start-dash.svg" />
+  <a href="https://hub.docker.com/r/caomeiyouren/download-start-dash" target="_blank">
+    <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/caomeiyouren/download-start-dash">
+  </a>
   <a href="https://github.com/CaoMeiYouRen/download-start-dash/actions?query=workflow%3ARelease" target="_blank">
     <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/CaoMeiYouRen/download-start-dash/release.yml?branch=master">
   </a>
