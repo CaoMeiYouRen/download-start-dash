@@ -5,4 +5,6 @@ export type Bindings = {
     LOG_LEVEL: string
     TIMEOUT: string
     MAX_BODY_SIZE: string
+    AUTH_TOKEN: string
+    BASE_URL: string
 }

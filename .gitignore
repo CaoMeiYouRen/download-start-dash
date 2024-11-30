@@ -36,6 +36,7 @@ sessions
 #public
 dist
 temp
+data
 
 .vercel
 .wrangler

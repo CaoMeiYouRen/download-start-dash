@@ -1,3 +1,4 @@
+import path from 'path'
 import dotenv from 'dotenv'
 import { getRuntimeKey } from 'hono/adapter'
 const result = dotenv.config({
@@ -24,3 +25,13 @@ export const LOG_LEVEL = process.env.LOG_LEVEL || (__DEV__ ? 'silly' : 'http')
 
 // 判断当前运行时 是否是 Cloudflare Workers
 export const IS_CLOUDFLARE_WORKERS = process.env.RUNTIME_KEY === 'cloudflare-workers' || getRuntimeKey() === 'workerd'
+
+export const AUTH_TOKEN = process.env.AUTH_TOKEN
+
+export const DATA_PATH = path.resolve(process.env.DATA_PATH || './data')
+
+export const DOWNLOAD_PATH = path.resolve(process.env.DOWNLOAD_PATH || `${DATA_PATH}/download`)
+
+export const COOKIES_PATH = path.resolve(process.env.COOKIES_PATH || `${DATA_PATH}/cookies`)
+
+export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`

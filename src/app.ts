@@ -6,11 +6,13 @@ import { showRoutes } from 'hono/dev'
 import { env, getRuntimeKey } from 'hono/adapter'
 import { bodyLimit } from 'hono/body-limit'
 import { requestId } from 'hono/request-id'
-import { __DEV__ } from './env'
-import { loggerMiddleware } from './middlewares/logger'
+import fs from 'fs-extra'
+import { __DEV__, COOKIES_PATH, DATA_PATH, DOWNLOAD_PATH } from './env'
+import logger, { loggerMiddleware } from './middlewares/logger'
 import { errorhandler, notFoundHandler } from './middlewares/error'
 import { Bindings } from './types'
 import routes from './routes'
+import { checkEngines } from './utils/check'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -43,8 +45,21 @@ app.all('/runtime', (c) => c.json({
 
 app.route('/', routes)
 
-__DEV__ && showRoutes(app, {
-    verbose: true,
-})
+if (__DEV__) {
+    showRoutes(app, {
+        verbose: true,
+    })
+
+}
+
+checkEngines()
+
+// 创建数据目录
+await fs.ensureDir(DATA_PATH)
+logger.info(`数据目录 ${DATA_PATH}`)
+await fs.ensureDir(DOWNLOAD_PATH)
+logger.info(`下载目录 ${DOWNLOAD_PATH}`)
+await fs.ensureDir(COOKIES_PATH)
+logger.info(`cookies 目录 ${COOKIES_PATH}`)
 
 export default app
