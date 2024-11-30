@@ -65,7 +65,7 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     }
                     const cmd = `you-get ${flags.join(' ')}`
                     logger.info(cmd)
-                    await $`you-get ${flags}`.verbose()
+                    await $`you-get ${flags}`
                     const ext = Object.values(info.streams)?.[0]?.container || 'mp4'
                     downloads.push(new URL(`/download/${videoName}.${ext}`, baseUrl).toString())
                 }
@@ -75,15 +75,19 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 }
             }
             case EngineEnum.ARIA2: {
+                downloads = []
                 const flags: string[] = []
-                flags.push('-i', url)
+                flags.push(url)
+                flags.push('--referer', url)
                 flags.push('-d', DOWNLOAD_PATH)
                 if (name) {
                     flags.push('-o', name)
                 }
                 const cmd = `aria2c ${flags.join(' ')}`
                 logger.info(cmd)
-                await $`aria2c ${flags}`.verbose()
+                await $`aria2c ${flags}`
+                const videoName = name || url.split('/').pop()
+                downloads.push(new URL(`/download/${videoName}`, baseUrl).toString())
                 return {
                     success: true,
                     downloads,
@@ -102,7 +106,7 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 }
                 const cmd = `yutto ${flags.join(' ')}`
                 logger.info(cmd)
-                await $`yutto ${flags}`.verbose()
+                $`yutto ${flags}`
                 return {
                     success: true,
                     downloads,
@@ -125,11 +129,11 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 if (engine === EngineEnum.YOUTUBE_DL) {
                     const cmd = `yt-dlp ${flags.join(' ')}`
                     logger.info(cmd)
-                    await $`yt-dlp ${flags}`.verbose()
+                    await $`yt-dlp ${flags}`
                 } else {
                     const cmd = `youtube-dl ${flags.join(' ')}`
                     logger.info(cmd)
-                    await $`youtube-dl ${flags}`.verbose()
+                    await $`youtube-dl ${flags}`
                 }
                 return {
                     success: true,
