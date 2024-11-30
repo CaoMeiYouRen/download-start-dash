@@ -20,6 +20,18 @@ app.on(['GET', 'POST', 'DELETE', 'PUT'], ['/download', '/download/*'], (c, next)
     return next()
 })
 
+app.get('/download', async (c) => {
+    const { BASE_URL } = env(c)
+    const files = await fs.readdir(DOWNLOAD_PATH)
+    return c.json({
+        success: true,
+        downloads: files.map((file) => ({
+            name: file,
+            url: new URL(`/download/${file}`, BASE_URL).toString(),
+        })),
+    })
+})
+
 app.get('/download/*', serveStatic({
     root: path.relative(process.cwd(), DOWNLOAD_PATH), // 绝对路径会找不到文件，所以使用相对路径
     rewriteRequestPath: (filepath) => filepath.replace('/download/', './'),
