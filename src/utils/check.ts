@@ -35,9 +35,9 @@ export const checkEngines = async () => {
 export const checkEngine = async (engine: Engine) => {
     const command = engine === 'auto' ? 'you-get' : engine
     try {
-        return which(command)
+        return await which(command)
     } catch (error) {
-        logger.warn(error)
+        logger.error(error)
         return false
     }
 }

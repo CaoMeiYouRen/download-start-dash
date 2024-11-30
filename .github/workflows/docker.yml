@@ -58,51 +58,51 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      # - name: Login to GitHub Container Registry
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKER_USERNAME }}
-      #     password: ${{ secrets.DOCKER_PASSWORD }}
-      # # - name: Login to Alibaba Cloud Container Registry
-      # #   uses: docker/login-action@v3
-      # #   with:
-      # #     registry: registry.cn-hangzhou.aliyuncs.com
-      # #     username: ${{ secrets.ALIYUN_USERNAME }}
-      # #     password: ${{ secrets.ALIYUN_PASSWORD }}
-      # - name: Extract Docker metadata
-      #   id: metadata
-      #   uses: docker/metadata-action@v5
-      #   with:
-      #     # 发布到 docker.io / ghcr.io / registry.cn-hangzhou.aliyuncs.com
-      #     # registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
-      #     images: |
-      #       ${{ github.repository }}
-      #       ghcr.io/${{ github.repository }}
-      #     tags: |
-      #       type=raw,value=latest,enable=true
-      #       type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
-      #       type=sha,format=short,prefix=sha-,enable=true
-      #     flavor: latest=false
-      # - name: Build and push Docker images
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile
-      #     # 推送到 dockerhub
-      #     push: true
-      #     tags: ${{ steps.metadata.outputs.tags }}
-      #     labels: ${{ steps.metadata.outputs.labels }}
-      #     platforms: linux/amd64,linux/arm64
-      # - name: Docker Hub README & description sync
-      #   uses: meeDamian/sync-readme@v1.0.6
-      #   with:
-      #     user: ${{ secrets.DOCKER_USERNAME }}
-      #     pass: ${{ secrets.DOCKER_PASSWORD }}
-      #     slug: ${{ github.repository }}
-      #     description: "一个支持 http 调用 you-get/aria2/youtube-dl 等多种下载器的工具"
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Alibaba Cloud Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-hangzhou.aliyuncs.com
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+      - name: Extract Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          # 发布到 docker.io / ghcr.io / registry.cn-hangzhou.aliyuncs.com
+          images: |
+            ${{ github.repository }}
+            ghcr.io/${{ github.repository }}
+            registry.cn-hangzhou.aliyuncs.com/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable=true
+            type=raw,value={{date 'YYYY-MM-DD' tz='Asia/Shanghai'}},enable=true
+            type=sha,format=short,prefix=sha-,enable=true
+          flavor: latest=false
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          # 推送到 dockerhub
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+      - name: Docker Hub README & description sync
+        uses: meeDamian/sync-readme@v1.0.6
+        with:
+          user: ${{ secrets.DOCKER_USERNAME }}
+          pass: ${{ secrets.DOCKER_PASSWORD }}
+          slug: ${{ github.repository }}
+          description: "一个支持 http 调用 you-get/aria2/youtube-dl 等多种下载器的工具"
