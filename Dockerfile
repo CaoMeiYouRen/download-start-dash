@@ -40,6 +40,11 @@ ENV NODE_ENV production
 
 WORKDIR /app
 
+RUN apk update \
+ && apk add --no-cache --update ffmpeg aria2 python3 py3-pip \
+ && python3 --version \
+ && pip3 install --no-cache-dir you-get yutto youtube-dl yt-dlp
+
 COPY --from=docker-minifier /app /app
 
 EXPOSE 3000

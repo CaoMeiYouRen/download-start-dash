@@ -14,7 +14,7 @@ export const checkEngines = async () => {
     // 检查 ffmpeg 是否安装
     const ffmpegPath = await which('ffmpeg')
     if (!ffmpegPath) {
-        logger.error('ffmpeg 未安装。ffmpeg 为必要依赖，用以下载流式视频以及合并分块视频！')
+        logger.warn('ffmpeg 未安装。ffmpeg 为必要依赖，用以下载流式视频以及合并分块视频！')
     } else {
         logger.info(`ffmpeg 已安装，路径为 ${ffmpegPath}`)
     }
@@ -34,10 +34,5 @@ export const checkEngines = async () => {
 // 检查下载器是否安装
 export const checkEngine = async (engine: Engine) => {
     const command = engine === 'auto' ? 'you-get' : engine
-    try {
-        return await which(command)
-    } catch (error) {
-        logger.error(error)
-        return false
-    }
+    return which(command, { nothrow: true })
 }
