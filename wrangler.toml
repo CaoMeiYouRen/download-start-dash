@@ -1,4 +1,4 @@
-name = "hono-template"
+name = "download-start-dash"
 # 默认为 Production 环境
 main = "dist/app.mjs"
 minify = true

@@ -2,9 +2,8 @@ version: "3"
 
 services:
   server:
-    # build: .
-    container_name: 'hono-template'
-    image: ${DOCKER_IMAGE:-caomeiyouren/hono-template}
+    container_name: 'download-start-dash'
+    image: ${DOCKER_IMAGE:-caomeiyouren/download-start-dash}
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -15,3 +14,4 @@ services:
       LOGFILES: 'true'
     volumes:
       - ./logs:/app/logs
+      - ./data:/app/data
