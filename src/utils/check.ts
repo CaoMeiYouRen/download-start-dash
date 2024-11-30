@@ -12,9 +12,9 @@ if (os.platform() === 'win32') { // 如果是 Windows 系统，则切换到 Powe
 // 检查下载器是否安装
 export const checkEngines = async () => {
     // 检查 ffmpeg 是否安装
-    const ffmpegPath = await which('ffmpeg')
+    const ffmpegPath = await which('ffmpeg', { nothrow: true })
     if (!ffmpegPath) {
-        logger.warn('ffmpeg 未安装。ffmpeg 为必要依赖，用以下载流式视频以及合并分块视频！')
+        logger.error('ffmpeg 未安装。ffmpeg 为必要依赖，用以下载流式视频以及合并分块视频！')
     } else {
         logger.info(`ffmpeg 已安装，路径为 ${ffmpegPath}`)
     }
