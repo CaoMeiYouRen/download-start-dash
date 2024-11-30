@@ -11,6 +11,8 @@ export const EngineEnum = {
 export type Engine = (typeof EngineEnum)[keyof typeof EngineEnum]
 
 export interface DownloadRequest {
+    // 是否同步下载
+    sync?: boolean
     // 下载器
     engine?: Engine
     // 视频地址
