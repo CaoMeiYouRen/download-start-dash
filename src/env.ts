@@ -35,3 +35,6 @@ export const DOWNLOAD_PATH = path.resolve(process.env.DOWNLOAD_PATH || `${DATA_P
 export const COOKIES_PATH = path.resolve(process.env.COOKIES_PATH || `${DATA_PATH}/cookies`)
 
 export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`
+
+export const COOKIE_CLOUD_URL = process.env.COOKIE_CLOUD_URL
+export const COOKIE_CLOUD_PASSWORD = process.env.COOKIE_CLOUD_PASSWORD
