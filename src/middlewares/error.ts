@@ -5,15 +5,18 @@ import { StatusCode } from 'hono/utils/http-status'
 import logger from '@/middlewares/logger'
 
 export const errorhandler: ErrorHandler = (error: HTTPResponseError, c: Context) => {
-    const message = process.env.NODE_ENV === 'production' ? `${error.name}: ${error.message}` : error.stack
+    let message = process.env.NODE_ENV === 'production' ? `${error.name}: ${error.message}` : error.stack
     let status = 500
     if (error instanceof HTTPException) {
         const response = error.getResponse()
         status = response.status
+        if (!error.message) {
+            message = `HTTPException: ${response.statusText}`
+        }
     }
     const method = c.req.method
     const requestPath = c.req.path
-    logger.error(`Error in ${method} ${requestPath}: \n${message}`)
+    logger.error(`Error in ${method} ${requestPath}: \n${error.stack}`)
     return c.json({
         status,
         message,
