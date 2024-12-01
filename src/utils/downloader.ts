@@ -35,6 +35,22 @@ async function youGetInfos(url: string, cookiePath?: string) {
     return result
 }
 
+async function getYoutubeTitle(url: string, cookiePath?: string) {
+    const flags: string[] = [url, '--get-title']
+    if (PROXY_URL) {
+        flags.push('--proxy', PROXY_URL)
+    }
+    if (cookiePath) {
+        flags.push('--cookies', cookiePath)
+    }
+    const [error, output] = await to($`youtube-dl ${flags}`)
+    if (error) {
+        logger.error(error.stack)
+        return ''
+    }
+    return output.stdout.trim()
+}
+
 export const downloader = async (request: DownloadRequest, baseUrl: string) => {
     const { engine, url, playlist } = request
     const name = legitimize(request.name || '')
@@ -87,8 +103,9 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 flags.push(url)
                 flags.push('--referer', url)
                 flags.push('-d', DOWNLOAD_PATH)
-                if (name) {
-                    flags.push('-o', name)
+                const videoName = slugify(name || url.split('/').pop() || '', '_')
+                if (videoName) {
+                    flags.push('-o', videoName)
                 }
                 if (PROXY_URL) {
                     flags.push('--all-proxy', PROXY_URL)
@@ -99,7 +116,6 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 const cmd = `aria2c ${flags.join(' ')}`
                 logger.info(cmd)
                 await $`aria2c ${flags}`
-                const videoName = name || url.split('/').pop()
                 downloads.push(new URL(`/download/${videoName}`, baseUrl).toString())
                 return {
                     success: true,
@@ -145,11 +161,11 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 if (cookiePath) {
                     flags.push('--cookies', cookiePath)
                 }
+                const title = await getYoutubeTitle(url, cookiePath)
+                const videoName = slugify(name || title, '_')
                 if (engine === EngineEnum.YT_DLP) {
-                    if (name) {
-                        flags.push('-o', `${name}.%(ext)s`)
-                    } else {
-                        flags.push('-o', '%(title)s_[%(id)s].%(ext)s')
+                    if (videoName) {
+                        flags.push('-o', `${videoName}.%(ext)s`)
                     }
                     flags.push('--paths', DOWNLOAD_PATH)
                     const cmd = `yt-dlp ${flags.join(' ')}`
@@ -161,10 +177,8 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     const filename = path.basename(filepath)
                     downloads.push(new URL(`/download/${filename}`, baseUrl).toString())
                 } else {
-                    if (name) {
-                        flags.push('-o', path.join(DOWNLOAD_PATH, `${name}.%(ext)s`))
-                    } else {
-                        flags.push('-o', path.join(DOWNLOAD_PATH, '%(title)s_[%(id)s].%(ext)s'))
+                    if (videoName) {
+                        flags.push('-o', `${videoName}.%(ext)s`)
                     }
                     const cmd = `youtube-dl ${flags.join(' ')}`
                     logger.info(cmd)
