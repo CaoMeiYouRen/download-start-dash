@@ -1,12 +1,17 @@
 import os from 'os'
-import { $, usePowerShell, which } from 'zx'
+import { $, usePowerShell, useBash, which, quote } from 'zx'
 import { Engine, EngineEnum } from '@/interfaces/download'
 import logger from '@/middlewares/logger'
+
+$.verbose = true
 if (os.platform() === 'win32') { // 如果是 Windows 系统，则切换到 PowerShell
     usePowerShell()
-    $.verbose = true
     logger.debug('检测到 Windows 系统，切换到 PowerShell')
 } else {
+    useBash()
+    if (!$.quote) {
+        $.quote = quote
+    }
     logger.debug('检测到非 Windows 系统，使用默认 shell')
 }
 

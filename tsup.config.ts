@@ -39,7 +39,7 @@ const tsupOptions: Options = {
         options.charset = 'utf8'
     },
     // external: [], // 排除的依赖项
-    noExternal: ['zx'],
+    // noExternal: ['zx'],
     // noExternal: [/(.*)/], // 将依赖打包到一个文件中
     // bundle: true,
 }
