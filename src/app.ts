@@ -7,14 +7,13 @@ import { env, getRuntimeKey } from 'hono/adapter'
 import { bodyLimit } from 'hono/body-limit'
 import { requestId } from 'hono/request-id'
 import fs from 'fs-extra'
-import { to } from 'await-to-js'
-import { __DEV__, COOKIE_CLOUD_PASSWORD, COOKIE_CLOUD_URL, COOKIES_PATH, DATA_PATH, DOWNLOAD_PATH } from './env'
+import { __DEV__, COOKIE_CLOUD_URL, COOKIES_PATH, DATA_PATH, DOWNLOAD_PATH, PROXY_URL } from './env'
 import logger, { loggerMiddleware } from './middlewares/logger'
 import { errorhandler, notFoundHandler } from './middlewares/error'
 import { Bindings } from './types'
 import routes from './routes'
 import { checkEngines } from './utils/check'
-import { cloudCookie2File, getCloudCookie, syncCloudCookie } from './utils/cookie'
+import { syncCloudCookie } from './utils/cookie'
 import { timer } from './utils/timer'
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -62,6 +61,10 @@ await fs.ensureDir(DOWNLOAD_PATH)
 logger.info(`下载目录 ${DOWNLOAD_PATH}`)
 await fs.ensureDir(COOKIES_PATH)
 logger.info(`cookies 目录 ${COOKIES_PATH}`)
+
+if (PROXY_URL) {
+    logger.info(`代理地址 ${PROXY_URL}`)
+}
 
 checkEngines()
 

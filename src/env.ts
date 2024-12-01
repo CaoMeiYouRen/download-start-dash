@@ -38,3 +38,5 @@ export const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`
 
 export const COOKIE_CLOUD_URL = process.env.COOKIE_CLOUD_URL
 export const COOKIE_CLOUD_PASSWORD = process.env.COOKIE_CLOUD_PASSWORD
+
+export const PROXY_URL = process.env.PROXY_URL

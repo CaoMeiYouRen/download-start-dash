@@ -1,3 +1,4 @@
+import path from 'path'
 import { $ } from 'zx'
 import slugify from 'slugify'
 import { to } from 'await-to-js'
@@ -7,7 +8,7 @@ import { parseJsonArray } from './video-info'
 import { getCookiePath } from './cookie'
 import { DownloadRequest, EngineEnum } from '@/interfaces/download'
 import logger from '@/middlewares/logger'
-import { DOWNLOAD_PATH } from '@/env'
+import { DOWNLOAD_PATH, PROXY_URL } from '@/env'
 
 const tryYouGet = async (url: string, withPlaylist: boolean, cookiePath?: string) => {
     const flags: string[] = [url, '--json']
@@ -19,7 +20,7 @@ const tryYouGet = async (url: string, withPlaylist: boolean, cookiePath?: string
     }
     const [error, output] = await to($`you-get ${flags}`)
     if (error) {
-        logger.error(error)
+        logger.error(error.stack)
         return []
     }
     return parseJsonArray(output.stdout)
@@ -63,6 +64,13 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     if (cookiePath) {
                         flags.push('-c', cookiePath)
                     }
+                    if (PROXY_URL) {
+                        if (PROXY_URL.startsWith('http')) {
+                            flags.push('--http-proxy', PROXY_URL)
+                        } else if (PROXY_URL.startsWith('socks')) {
+                            flags.push('--socks-proxy', PROXY_URL)
+                        }
+                    }
                     const cmd = `you-get ${flags.join(' ')}`
                     logger.info(cmd)
                     await $`you-get ${flags}`
@@ -82,6 +90,9 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 flags.push('-d', DOWNLOAD_PATH)
                 if (name) {
                     flags.push('-o', name)
+                }
+                if (PROXY_URL) {
+                    flags.push('--all-proxy', PROXY_URL)
                 }
                 const cmd = `aria2c ${flags.join(' ')}`
                 logger.info(cmd)
@@ -104,6 +115,9 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 if (playlist) {
                     flags.push('--batch')
                 }
+                if (PROXY_URL) {
+                    flags.push('--proxy', PROXY_URL)
+                }
                 const cmd = `yutto ${flags.join(' ')}`
                 logger.info(cmd)
                 $`yutto ${flags}`
@@ -116,21 +130,29 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
             case EngineEnum.YT_DLP: { // yt-dlp 是 youtube-dl 的 fork
                 const flags: string[] = []
                 flags.push(url)
-                if (name) {
-                    flags.push('-o', `${name}.%(ext)s`)
-                } else {
-                    flags.push('-o', '%(title)s_[%(id)s].%(ext)s')
-                }
+                flags.push('--cache-dir', DOWNLOAD_PATH)
                 if (playlist) {
                     flags.push('--yes-playlist')
                 }
-                flags.push('--paths', DOWNLOAD_PATH)
-                flags.push('--cache-dir', DOWNLOAD_PATH)
-                if (engine === EngineEnum.YOUTUBE_DL) {
+                if (PROXY_URL) {
+                    flags.push('--proxy', PROXY_URL)
+                }
+                if (engine === EngineEnum.YT_DLP) {
+                    if (name) {
+                        flags.push('-o', `${name}.%(ext)s`)
+                    } else {
+                        flags.push('-o', '%(title)s_[%(id)s].%(ext)s')
+                    }
+                    flags.push('--paths', DOWNLOAD_PATH)
                     const cmd = `yt-dlp ${flags.join(' ')}`
                     logger.info(cmd)
                     await $`yt-dlp ${flags}`
                 } else {
+                    if (name) {
+                        flags.push('-o', path.join(DOWNLOAD_PATH, `${name}.%(ext)s`))
+                    } else {
+                        flags.push('-o', path.join(DOWNLOAD_PATH, '%(title)s_[%(id)s].%(ext)s'))
+                    }
                     const cmd = `youtube-dl ${flags.join(' ')}`
                     logger.info(cmd)
                     await $`youtube-dl ${flags}`
@@ -142,7 +164,7 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
             }
         }
     } catch (error) {
-        logger.error(error)
+        logger.error(error.stack)
         return {
             success: false,
             downloads,

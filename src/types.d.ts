@@ -9,4 +9,5 @@ export type Bindings = {
     BASE_URL: string
     COOKIE_CLOUD_URL: string
     COOKIE_CLOUD_PASSWORD: string
+    PROXY_URL: string
 }
