@@ -77,7 +77,11 @@ app.post('/download', async (c) => {
     let engine = body.engine || 'auto'
     // const name = slugify(body.name || '', '_') // 获取 url 友好的名称
     if (!engine || engine === 'auto') {
-        engine = EngineEnum.YOU_GET
+        if (url.startsWith('https://www.youtube.com/watch')) { // YouTube 视频优先使用 yt-dlp
+            engine = EngineEnum.YT_DLP
+        } else {
+            engine = EngineEnum.YOU_GET
+        }
     }
     if (!async) {
         const { success, downloads } = await downloader({ engine, url, name, playlist }, BASE_URL)
