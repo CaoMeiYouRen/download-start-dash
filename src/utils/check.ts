@@ -8,6 +8,12 @@ if (os.platform() === 'win32') { // 如果是 Windows 系统，则切换到 Powe
     usePowerShell()
     logger.debug('检测到 Windows 系统，切换到 PowerShell')
 } else {
+    // 检查是否安装 bash
+    const bashPath = await which('bash', { nothrow: true })
+    if (!bashPath) {
+        logger.error('bash 未安装！无法执行命令！')
+        process.exit(1)
+    }
     useBash()
     if (!$.quote) {
         $.quote = quote
