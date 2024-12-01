@@ -128,6 +128,7 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
             }
             case EngineEnum.YOUTUBE_DL:
             case EngineEnum.YT_DLP: { // yt-dlp 是 youtube-dl 的 fork
+                downloads = []
                 const flags: string[] = []
                 flags.push(url)
                 flags.push('--cache-dir', DOWNLOAD_PATH)
@@ -147,6 +148,10 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     const cmd = `yt-dlp ${flags.join(' ')}`
                     logger.info(cmd)
                     await $`yt-dlp ${flags}`
+                    // 获取文件名称
+                    flags.push('--get-filename')
+                    const filename = (await $`yt-dlp ${flags}`).stdout.trim()
+                    downloads.push(new URL(`/download/${filename}`, baseUrl).toString())
                 } else {
                     if (name) {
                         flags.push('-o', path.join(DOWNLOAD_PATH, `${name}.%(ext)s`))
@@ -156,6 +161,10 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     const cmd = `youtube-dl ${flags.join(' ')}`
                     logger.info(cmd)
                     await $`youtube-dl ${flags}`
+                    // 获取文件名称
+                    flags.push('--get-filename')
+                    const filename = (await $`youtube-dl ${flags}`).stdout.trim()
+                    downloads.push(new URL(`/download/${filename}`, baseUrl).toString())
                 }
                 return {
                     success: true,
