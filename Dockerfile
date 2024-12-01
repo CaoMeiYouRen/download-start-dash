@@ -41,7 +41,7 @@ ENV NODE_ENV production
 WORKDIR /app
 
 RUN apk update \
- && apk add --no-cache --update ffmpeg aria2 python3 py3-pip \
+ && apk add --no-cache --update ffmpeg aria2 python3 py3-pip bash \
  && python3 --version \
  && pip3 install --no-cache-dir --upgrade --break-system-packages you-get yutto youtube-dl yt-dlp
 
