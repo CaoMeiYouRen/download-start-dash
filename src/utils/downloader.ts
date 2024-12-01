@@ -43,7 +43,7 @@ async function getYoutubeTitle(url: string, cookiePath?: string) {
     if (cookiePath) {
         flags.push('--cookies', cookiePath)
     }
-    const [error, output] = await to($`youtube-dl ${flags}`)
+    const [error, output] = await to($`yt-dlp ${flags}`)
     if (error) {
         logger.error(error.stack)
         return ''
