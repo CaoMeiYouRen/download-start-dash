@@ -150,7 +150,8 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     await $`yt-dlp ${flags}`
                     // 获取文件名称
                     flags.push('--get-filename')
-                    const filename = (await $`yt-dlp ${flags}`).stdout.trim()
+                    const filepath = (await $`yt-dlp ${flags}`).stdout.trim()
+                    const filename = path.basename(filepath)
                     downloads.push(new URL(`/download/${filename}`, baseUrl).toString())
                 } else {
                     if (name) {
@@ -163,7 +164,8 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     await $`youtube-dl ${flags}`
                     // 获取文件名称
                     flags.push('--get-filename')
-                    const filename = (await $`youtube-dl ${flags}`).stdout.trim()
+                    const filepath = (await $`youtube-dl ${flags}`).stdout.trim()
+                    const filename = path.basename(filepath)
                     downloads.push(new URL(`/download/${filename}`, baseUrl).toString())
                 }
                 return {
