@@ -44,14 +44,13 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
         throw new Error(`下载器 ${engine} 未安装`)
     }
     downloads.push(new URL(`/download/${name}`, baseUrl).toString())
+    const host = new URL(url).host
+    const cookiePath = await getCookiePath(host)
     try {
         switch (engine) {
             case EngineEnum.YOU_GET: {
                 downloads = []
-                const host = new URL(url).host
-                const cookiePath = await getCookiePath(host)
                 const infos = await youGetInfos(url, cookiePath)
-
                 for (const info of infos) {
                     const flags: string[] = []
                     flags.push(info.url)
@@ -94,6 +93,9 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 if (PROXY_URL) {
                     flags.push('--all-proxy', PROXY_URL)
                 }
+                if (cookiePath) {
+                    flags.push('--load-cookies', cookiePath)
+                }
                 const cmd = `aria2c ${flags.join(' ')}`
                 logger.info(cmd)
                 await $`aria2c ${flags}`
@@ -118,6 +120,8 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 if (PROXY_URL) {
                     flags.push('--proxy', PROXY_URL)
                 }
+                // TODO: 添加 cookie 支持
+                // yutto 要直接传 sessdata，不是 cookie 文件，故暂时搁置
                 const cmd = `yutto ${flags.join(' ')}`
                 logger.info(cmd)
                 await $`yutto ${flags}`
@@ -137,6 +141,9 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 }
                 if (PROXY_URL) {
                     flags.push('--proxy', PROXY_URL)
+                }
+                if (cookiePath) {
+                    flags.push('--cookies', cookiePath)
                 }
                 if (engine === EngineEnum.YT_DLP) {
                     if (name) {
