@@ -20,7 +20,7 @@
 </p>
 
 
-> 一个支持 http 调用 you-get/aria2/youtube-dl 等多种下载器的工具。支持 nodejs/docker 等部署方式。
+> 一个支持 http 调用 you-get/aria2/yutto/yt-dlp/youtube-dl 等多种下载器的工具。支持 nodejs/docker 等部署方式。
 
 ## 🏠 主页
 
