@@ -14,8 +14,9 @@ import { DOWNLOAD_PATH } from '@/env'
 const app = new Hono<{ Bindings: Bindings }>()
 
 app.on(['GET', 'POST', 'DELETE', 'PUT'], ['/download', '/download/*'], (c, next) => {
-    if (c.env.AUTH_TOKEN) {
-        return bearerAuth({ token: c.env.AUTH_TOKEN })(c, next)
+    const { AUTH_TOKEN } = env(c)
+    if (AUTH_TOKEN) {
+        return bearerAuth({ token: AUTH_TOKEN })(c, next)
     }
     return next()
 })
