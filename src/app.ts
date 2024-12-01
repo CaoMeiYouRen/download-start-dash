@@ -14,7 +14,8 @@ import { errorhandler, notFoundHandler } from './middlewares/error'
 import { Bindings } from './types'
 import routes from './routes'
 import { checkEngines } from './utils/check'
-import { cloudCookie2File, getCloudCookie } from './utils/cookie'
+import { cloudCookie2File, getCloudCookie, syncCloudCookie } from './utils/cookie'
+import { timer } from './utils/timer'
 
 const app = new Hono<{ Bindings: Bindings }>()
 
@@ -61,18 +62,13 @@ await fs.ensureDir(DOWNLOAD_PATH)
 logger.info(`下载目录 ${DOWNLOAD_PATH}`)
 await fs.ensureDir(COOKIES_PATH)
 logger.info(`cookies 目录 ${COOKIES_PATH}`)
+
+checkEngines()
+
+syncCloudCookie()
 if (COOKIE_CLOUD_URL) {
-    setTimeout(async () => {
-        checkEngines()
-        logger.info('正在获取 Cookie')
-        const [cookieError, data] = await to(getCloudCookie(COOKIE_CLOUD_URL, COOKIE_CLOUD_PASSWORD))
-        if (cookieError) {
-            logger.error('获取 Cookie失败！\n', cookieError.stack)
-        } else if (data) {
-            await cloudCookie2File(data)
-            logger.info('获取 Cookie 成功')
-        }
-    }, 0)
+    // 每小时同步一次
+    timer('0 * * * *', syncCloudCookie)
 }
 
 export default app

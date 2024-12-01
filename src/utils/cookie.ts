@@ -1,6 +1,8 @@
 import path from 'path'
 import fs from 'fs-extra'
-import { COOKIES_PATH } from '@/env'
+import { to } from 'await-to-js'
+import { COOKIE_CLOUD_PASSWORD, COOKIE_CLOUD_URL, COOKIES_PATH } from '@/env'
+import logger from '@/middlewares/logger'
 
 export async function getCloudCookie(url: string, password: string): Promise<any> {
     const payload = JSON.stringify({ password })
@@ -60,6 +62,21 @@ export async function cloudCookie2File(data: any) {
 
     } catch (error) {
         console.error('Unexpected error:', error)
+    }
+}
+
+export async function syncCloudCookie() {
+    if (COOKIE_CLOUD_URL) {
+        logger.info('正在获取 Cookie')
+        const [cookieError, data] = await to(getCloudCookie(COOKIE_CLOUD_URL, COOKIE_CLOUD_PASSWORD))
+        if (cookieError) {
+            logger.error('获取 Cookie失败！\n', cookieError.stack)
+            return
+        }
+        if (data) {
+            await cloudCookie2File(data)
+            logger.info('获取 Cookie 成功')
+        }
     }
 }
 
