@@ -120,7 +120,7 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 }
                 const cmd = `yutto ${flags.join(' ')}`
                 logger.info(cmd)
-                $`yutto ${flags}`
+                await $`yutto ${flags}`
                 return {
                     success: true,
                     downloads,
