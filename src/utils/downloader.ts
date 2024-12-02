@@ -54,18 +54,16 @@ async function getYoutubeTitle(url: string, cookiePath?: string) {
 export const downloader = async (request: DownloadRequest, baseUrl: string) => {
     const { engine, url, playlist } = request
     const name = legitimize(request.name || '')
-    let downloads: string[] = [] // 如果是playlist，则存在多个链接
+    const downloads: string[] = [] // 如果是playlist，则存在多个链接
     const enginePath = await checkEngine(engine)
     if (!enginePath) {
         throw new Error(`下载器 ${engine} 未安装`)
     }
-    downloads.push(new URL(`/download/${name}`, baseUrl).toString())
     const host = new URL(url).host
     const cookiePath = await getCookiePath(host)
     try {
         switch (engine) {
             case EngineEnum.YOU_GET: {
-                downloads = []
                 const infos = await youGetInfos(url, cookiePath)
                 for (const info of infos) {
                     const flags: string[] = []
@@ -98,7 +96,6 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 }
             }
             case EngineEnum.ARIA2: {
-                downloads = []
                 const flags: string[] = []
                 flags.push(url)
                 flags.push('--referer', url)
@@ -127,8 +124,9 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 flags.push(url)
                 flags.push('-d', DOWNLOAD_PATH)
                 flags.push('--tmp-dir', DOWNLOAD_PATH)
-                if (name) {
-                    flags.push('-o', name)
+                const videoName = slugify(name || url.split('/').pop() || '', '_')
+                if (videoName) {
+                    flags.push('-o', videoName)
                 }
                 if (playlist) {
                     flags.push('--batch')
@@ -141,6 +139,7 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                 const cmd = `yutto ${flags.join(' ')}`
                 logger.info(cmd)
                 await $`yutto ${flags}`
+                downloads.push(new URL(`/download/${videoName}`, baseUrl).toString())
                 return {
                     success: true,
                     downloads,
@@ -148,7 +147,6 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
             }
             case EngineEnum.YOUTUBE_DL:
             case EngineEnum.YT_DLP: { // yt-dlp 是 youtube-dl 的 fork
-                downloads = []
                 const flags: string[] = []
                 flags.push(url)
                 flags.push('--cache-dir', DOWNLOAD_PATH)
@@ -178,7 +176,7 @@ export const downloader = async (request: DownloadRequest, baseUrl: string) => {
                     downloads.push(new URL(`/download/${filename}`, baseUrl).toString())
                 } else {
                     if (videoName) {
-                        flags.push('-o', `${videoName}.%(ext)s`)
+                        flags.push('-o', path.join(DOWNLOAD_PATH, `${videoName}.%(ext)s`))
                     }
                     const cmd = `youtube-dl ${flags.join(' ')}`
                     logger.info(cmd)
